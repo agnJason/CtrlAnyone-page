@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="FantasyTalking: Realistic Talking Portrait Generation via Coherent Motion Synthesis">
+  <meta name="keywords" content="Video Generation, Diffusion Models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FantasyTalking: Realistic Talking Portrait Generation via Coherent Motion Synthesis</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <style>
+    /* Dark theme styles */
+    body {
+      background-color:  #0a0a0a;
+      color: #ffffff;
+    }
+    .title, .subtitle, .content, .publication-title {
+      color: #ffffff !important;
+    }
+    .hero.is-light {
+      background-color: #1a1a1a !important;
+      color: #ffffff !important;
+    }
+    .section {
+      background-color: #0a0a0a;
+    }
+    .footer {
+      background-color: #1a1a1a;
+      color: #ffffff;
+    }
+    .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+      color: #ffffff;
+    }
+    pre {
+      background-color: #1a1a1a;
+      color: #ffffff;
+    }
+    code {
+      background-color: #2a2a2a;
+      color: #ffffff;
+    }
+    .has-text-justified {
+      color: #ffffff;
+    }
+    .hero {
+      margin-top: 10rem;
+      background-color: #0a0a0a !important;
+    }
+    .hero-transparent {
+      position: relative;
+      z-index: 2;
+      margin-top: 0vh;
+      background-color: transparent !important;
+    }
+    .hero, .hero-body, .hero.is-small {
+      background-color: #0a0a0a !important;
+    }
+    html {
+      background-color: #0a0a0a !important;
+    }
+    .column-spacing {
+      margin: 0 2rem !important;
+    }
+    .video-description {
+      min-height: 4.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .prompt-wrap {
+      position: relative;
+    }
+
+    .prompt {
+      max-width: calc(100% - 20px);
+      position: absolute;
+      background: rgba(0,0,0,0.1);
+      color: rgba(255,255,255,0.9);
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+      bottom: 10px;
+      left: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+      line-height: 1.4;
+      
+    }
+
+    .prompt-wrap:hover .prompt {
+      opacity: 1;
+      pointer-events: all;
+    }
+  </style>
+  
+  <style>
+    .carousel {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      font-size: 0; /* Remove any potential inline-block spacing */
+    }
+    
+    .carousel::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+
+    .prompt-wrap-main {
+      flex: 0 0 auto;
+      height: 180px;
+      position: relative;
+      font-size: 16px; /* Reset font size for content */
+      display: flex; /* Use flexbox to center the video */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+    }
+
+    .prompt-wrap-main video {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+      display: block; /* Remove any potential inline spacing */
+      margin: 0; /* Remove any margins */
+    }
+
+    .results-carousel {
+      padding: 0;
+      white-space: nowrap; /* Prevent wrapping */
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero-transparent">
+  <div class="column has-text-centered" style="margin-top: 0rem; ">
+    <h1 class="title is-1 publication-title mb-1" style="background: transparent !important; text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.8); color: white;">CtrlAnyone</h1>
+    <h2 class="subtitle has-text-centered mt-1" style="background: transparent !important; color: white;">Angle-Conditioned Human Motion Synthesis for Controllable Pose-Guided Video Generation</h2>
+    <div class="is-size-5 publication-authors" style="background: transparent !important; ">
+      <span class="author-block" style="background: transparent !important;">
+        <a href="https://agnjason.github.io/" style="background: transparent !important; color: white;">Qijun Gan</a ><sup style="color: white;">1,2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</sup>
+      </span>
+      <span class="author-block" style="background: transparent !important;">
+        <a href="https://scholar.google.com/citations?user=QoRW-RwAAAAJ" style="background: transparent !important; color: white;">Jiawei Huang</a ><sup style="color: white;">1,2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</sup>
+      </span>
+      <span class="author-block" style="background: transparent !important;">
+        <a href="https://rayeren.github.io/" style="background: transparent !important; color: white;">Yi Ren</a ><sup style="color: white;">2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</sup>
+      </span>
+      <span class="author-block" style="background: transparent !important;">
+        <a href="https://github.com/ZiziAmy/" style="background: transparent !important; color: white;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ruizi Yang</a ><sup style="color: white;">1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</sup>
+      </span>
+      <div class="is-size-5 publication-authors" style="background: transparent !important;">
+          <span class="author-block" style="background: transparent !important;">
+            <a href="https://scholar.google.com/citations?user=e6_J-lEAAAAJ" style="background: transparent !important; color: white;">&nbsp;&nbsp;Xiang Yin</a ><sup style="color: white;">2&nbsp;&nbsp;</sup>
+          </span>
+          <span class="author-block" style="background: transparent !important;">
+            <a href="https://shallowyuan.github.io/" style="background: transparent !important; color: white;">Zehuan Yuan</a ><sup style="color: white;">2&nbsp;&nbsp;</sup>
+          </span>
+          <span class="author-block" style="background: transparent !important;">
+            <a href="https://www.linkedin.com/in/bingyp" style="background: transparent !important; color: white;">&nbsp;&nbsp;&nbsp;&nbsp;Bingyue Peng</a ><sup style="color: white;">2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</sup>
+          </span>
+          <span class="author-block" style="background: transparent !important;">
+            <a href="https://person.zju.edu.cn/en/jkzhu" style="background: transparent !important; color: white;">Jianke Zhu</a ><sup style="color: white;">1&nbsp;&nbsp;</sup>
+          </span>
+      </div>
+    </div>  
+
+
+
+    <div class="is-size-5 publication-authors" style="background: transparent !important;">
+      <span class="author-block" style="background: transparent !important; color: white;"><sup style="color: white;">1</sup>Zhejiang University</span>&nbsp;&nbsp;<sup style="color: white;">2</sup>Bytedance</span><br>
+    </div>
+
+    
+    <div class="column has-text-centered">
+        <div class="publication-links">
+          <!-- PDF Link. -->
+          <span class="link-block">
+            <a href=""
+               class="external-link button is-normal is-rounded is-dark">
+              <span class="icon">
+                  <i class="ai ai-arxiv"></i>
+              </span>
+              <span>arXiv</span>
+            </a>
+          </span>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" style="margin-top: 0rem;">
+  <div class="container is-max-desktop">
+      <div class="container" style="max-width: 100%;">
+        <img src="./assets/teaser.png" alt="Full Body">
+      </div>
+    <div class="columns is-vcentered" style="margin-top: 6rem;">
+        <div class="content has-text-justified">
+          <p>
+
+            Human motion video synthesis plays a vital role in applications such as virtual avatars and content creation. While existing methods often lack fine-grained control, making it challenging to generate precise gestures such as pointing or counting. To address this, we propose an angle-conditioned pose generation framework that models human motions through joint rotations along with absolute coordinates, which ensures anatomical consistency and adaptability across different body shapes. Additionally, we introduce a segment mask strategy for motion editing, allowing for targeted modifications at specific frames. To enhance rendering robustness, our video generation model incorporates region masking, frame dropout, and keypoint perturbation during training, mitigating pose estimation biases and reducing artifacts. Extensive experiments demonstrate that our framework achieves superior motion accuracy, video fidelity and seamless motion editing that advances controllable human video generation.
+          </p>
+        </div>
+    </div>
+  </div>
+</section>
+
+
+<style>
+    #results-carousel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+  
+    .prompt-wrap {
+      width: 33%; /* 设置每个视频占总宽度的32%，以确保每行显示3个 */
+      margin-bottom: 1rem; /* 设置每行视频之间的间距 */
+    }
+
+    .prompt-full {
+      width: 100%; /* 设置每个视频占总宽度的32%，以确保每行显示3个 */
+      margin-bottom: 1rem; /* 设置每行视频之间的间距 */
+    }
+  
+    video {
+      width: 100%; /* 视频占满父容器的宽度 */
+      height: auto; /* 保持视频的原始比例 */
+    }
+
+  </style>
+
+<section class="section">
+  <div class="hero-body">
+    <!-- <div class="container" style="max-width: 50%;"> -->
+    <div class="container is-max-desktop" style="margin-top: 0rem;">
+      <h2 class="title is-3">Pose Transfering </h2>
+      <p> CtrlAnyone can generate realistic and temporally stable motion sequences, with fine-grained fidelity to the reference pose sequences. Supports various styles of avatars, whether realistic or cartoon, and can generate high-quality pose transfer videos.</p>
+    </div>  
+  </div> 
+  <!-- <div class="container" style="max-width: 60%;"> -->
+  <div class="container is-max-desktop">
+    <div class="hero-body" style="margin-top: 1rem;">
+      <div class="container" style="max-width: 100%;">
+        <!-- <video poster="" autoplay controls muted loop playsinline> -->
+            <!-- <source src="./static/magic_human_video/long_video/case1.mp4" -->
+                    <!-- type="video/mp4"> -->
+        <!-- </video> -->
+        <!-- <h3 class="title is-4"></h3>  -->
+        <div id="results-carousel" class="results-carousel" style="margin-top: -1.3rem;">
+          <div class="prompt-wrap">
+            <!-- <video poster="" controls muted loop playsinline> -->
+              <video poster="" autoplay controls muted loop playsinline>
+              <source src="./assets/posetransfer1.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div>
+          <div class="prompt-wrap">
+            <!-- <video poster="" controls muted loop playsinline> -->
+              <video poster="" autoplay controls muted loop playsinline>
+              <source src="./assets/posetransfer2.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div>
+          <div class="prompt-wrap">
+            <video poster="" autoplay controls muted loop playsinline>
+              <source src="./assets/posetransfer3.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div>
+          <div class="prompt-wrap">
+            <video poster="" autoplay controls muted loop playsinline >
+              <source src="./assets/posetransfer4.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div>
+          <div class="prompt-wrap">
+            <video poster="" autoplay controls muted loop playsinline>
+              <source src="./assets/posetransfer5.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div>
+          <div class="prompt-wrap">
+            <video poster="" autoplay controls muted loop playsinline>
+              <source src="./assets/posetransfer6.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div>
+
+
+
+          <!-- <div class="prompt-wrap">
+            <video poster="" autoplay controls muted loop playsinline>
+              <source src="./assets/25.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div> -->
+          
+          <!-- <div class="prompt-wrap">
+            <video poster="" autoplay controls muted loop playsinline>
+              <source src="./assets/28.mp4"
+                      type="video/mp4">
+            </video>
+            <div class="prompt"></div>
+          </div> -->
+
+        </div>
+      </div>
+      <!-- <div class="container" style="max-width: 80%;"> -->
+        <!-- <h3 class="title is-4"></h3>  -->
+        <!-- <div id="results-carousel" class="carousel results-carousel" style="margin-top: -1.3rem;"> -->
+          <!--  -->
+        <!-- </div> -->
+      <!-- </div> -->
+      
+
+    </div>
+  </div> 
+</section>
+
+
+
+
+<!-- Realistic Talking Videos -->
+<section class="section">
+    <div class="hero-body">
+      <!-- <div class="container" style="max-width: 50%;"> -->
+      <div class="container is-max-desktop" style="margin-top: -6rem;">
+        <h2 class="title is-3">Pose Editing</h2>
+        <p> CtrlAnyone allows for modification of a character's pose based on specified action segments using angle-based motion guidance at any timestamp. This enables seamless integration of custom motion clips while preserving natural movement transitions.         </p>
+      </p>
+      </div>  
+    </div> 
+
+    <!-- <div class="container" style="max-width: 60%;"> -->
+    <div class="container is-max-desktop">
+      <div class="hero-body" style="margin-top: 1rem;">
+        <div class="container" style="max-width: 100%;">
+          <!-- <h3 class="title is-4"></h3>  -->
+          <div id="results-carousel" class="results-carousel" style="margin-top: -1.3rem;">
+            <div class="prompt-full">
+                <video poster="" autoplay controls muted loop playsinline>
+                  <source src="./assets/poseedit1.mp4"
+                          type="video/mp4">
+                </video>
+                <div class="prompt"></div>
+            </div>
+            <div class="prompt-full">
+                <video poster="" autoplay controls muted loop playsinline>
+                  <source src="./assets/poseedit2.mp4"
+                          type="video/mp4">
+                </video>
+                <div class="prompt"></div>
+            </div>
+
+            <div class="prompt-full">
+                <video poster="" autoplay controls muted loop playsinline>
+                  <source src="./assets/poseedit3.mp4"
+                          type="video/mp4">
+                </video>
+                <div class="prompt"></div>
+            </div>
+            <div class="prompt-full">
+                <video poster="" autoplay controls muted loop playsinline>
+                  <source src="./assets/poseedit4.mp4"
+                          type="video/mp4">
+                </video>
+                <div class="prompt"></div>
+            </div>
+        
+      </div>
+              <!-- <div class="prompt-wrap">
+                  <video poster="" autoplay controls muted loop playsinline style="height:200px; object-fit: contain">
+                    <source src="./assets/24.mp4"
+                            type="video/mp4">
+                  </video>
+                  <div class="prompt"></div>
+              </div>
+
+            <div class="prompt-wrap">
+                <video poster="" autoplay controls muted loop playsinline>
+                  <source src="./assets/20.mp4"
+                          type="video/mp4">
+                </video>
+                <div class="prompt"></div>
+            </div>
+            <div class="prompt-wrap mid-video">
+                <video poster="" autoplay controls muted loop playsinline style="height:400px; object-fit: contain">
+                  <source src="./assets/4.mp4"
+                          type="video/mp4">
+                </video>
+                <div class="prompt"></div>
+            </div>
+            <div class="prompt-wrap">
+                <video poster="" autoplay controls muted loop playsinline>
+                  <source src="./assets/9.mp4"
+                          type="video/mp4">
+                </video>
+                <div class="prompt"></div>
+            </div> -->
+
+        </div>
+    </div>
+  </div>
+</div> 
+</section>   
+
+
+<!-- Comparison with closed-source methods --> 
+
+
+
+<!-- Architecture -->
+
+<section class="section" >
+  <div class="container is-max-desktop" style="margin-top: -6rem;">
+    <h2 class="title is-3">Architecture Overview</h2>
+    <div class="container" style="max-width: 100%;">
+      <img src="./assets/pipeline.png" alt="Full Body">
+      <!-- <div id="results-carousel" class="carousel results-carousel"> -->
+        <!-- <div class="item item-fullbody"> -->
+          <!-- <img src="./static/arxiv_method.jpg" alt="Full Body"> -->
+        <!-- </div> -->
+        <!--  -->
+      <!-- </div> -->
+    </div>
+
+    <div class="columns is-centered has-text-centered", style="margin-top: 2rem;">
+      <div class="column is-full-width">
+        <div class="content has-text-justified">
+          <p>
+            CtrlAnyone generates animation videos conditioned on multiple kinds of reference poses. It consists of two key modules that ensure both realism and control in motion synthesis: (1) Editable angle-based keypoint generation model, which predicts keypoints based on angles or coordinates, enabling the synthesis of accurate and temporally coherent motion sequences. To enhance flexibility and controllability, we introduce a segment mask strategy which dynamically applies angular and keypoint conditioning to different motion segments. This selective control ensures smooth motion transitions and consistent articulation across frames. (2) Pose-guided video generation, where the generated keypoints serve as conditioning signals for a video diffusion model, driving the creation of high-fidelity, identity-consistent videos. 
+          </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code></code></pre>
+  </div>
+</section>
+
+
+
+<footer style="text-align: center;">
+  The webpage template was based on <a href="https://github.com/nerfies/nerfies.github.io">nerfies</a>.
+</footer>
+
+
+</body>
+</html>
