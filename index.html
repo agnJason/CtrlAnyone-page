@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="description"
-        content="FantasyTalking: Realistic Talking Portrait Generation via Coherent Motion Synthesis">
+        content="CtrlAnyone: Angle-Conditioned Human Motion Synthesis for Controllable Pose-Guided Video Generation">
   <meta name="keywords" content="Video Generation, Diffusion Models">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FantasyTalking: Realistic Talking Portrait Generation via Coherent Motion Synthesis</title>
+  <title>CtrlAnyone: Angle-Conditioned Human Motion Synthesis for Controllable Pose-Guided Video Generation</title>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
@@ -104,6 +104,9 @@
     .prompt-wrap {
       position: relative;
     }
+    .prompt-half {
+      position: relative;
+    }
 
     .prompt {
       max-width: calc(100% - 20px);
@@ -125,6 +128,10 @@
     }
 
     .prompt-wrap:hover .prompt {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .prompt-half:hover .prompt {
       opacity: 1;
       pointer-events: all;
     }
@@ -255,6 +262,10 @@
       width: 33%; /* 设置每个视频占总宽度的32%，以确保每行显示3个 */
       margin-bottom: 1rem; /* 设置每行视频之间的间距 */
     }
+    .prompt-half {
+      width: 50%; /* 设置每个视频占总宽度的32%，以确保每行显示3个 */
+      margin-bottom: 1rem; /* 设置每行视频之间的间距 */
+    }
 
     .prompt-full {
       width: 100%; /* 设置每个视频占总宽度的32%，以确保每行显示3个 */
@@ -383,14 +394,14 @@
         <div class="container" style="max-width: 100%;">
           <!-- <h3 class="title is-4"></h3>  -->
           <div id="results-carousel" class="results-carousel" style="margin-top: -1.3rem;">
-            <div class="prompt-full">
+            <div class="prompt-half">
                 <video poster="" autoplay controls muted loop playsinline>
                   <source src="./assets/poseedit1.mp4"
                           type="video/mp4">
                 </video>
                 <div class="prompt"></div>
             </div>
-            <div class="prompt-full">
+            <div class="prompt-half">
                 <video poster="" autoplay controls muted loop playsinline>
                   <source src="./assets/poseedit2.mp4"
                           type="video/mp4">
@@ -398,14 +409,14 @@
                 <div class="prompt"></div>
             </div>
 
-            <div class="prompt-full">
+            <div class="prompt-half">
                 <video poster="" autoplay controls muted loop playsinline>
                   <source src="./assets/poseedit3.mp4"
                           type="video/mp4">
                 </video>
                 <div class="prompt"></div>
             </div>
-            <div class="prompt-full">
+            <div class="prompt-half">
                 <video poster="" autoplay controls muted loop playsinline>
                   <source src="./assets/poseedit4.mp4"
                           type="video/mp4">
